@@ -101,6 +101,19 @@ namespace misc_tests {
     TEST_SUCCEED();
   }
 
+  bool root_false_bad_last_character() {
+    TEST_START();
+    for (std::string_view bad : {"falsA", "fals0", "fals\\"}) {
+      padded_string error_phrase(bad);
+      ondemand::parser parser;
+      ondemand::document doc;
+      ASSERT_SUCCESS(parser.iterate(error_phrase).get(doc));
+      bool b;
+      ASSERT_ERROR( doc.get_bool().get(b), INCORRECT_TYPE);
+    }
+    TEST_SUCCEED();
+  }
+
   bool replacement_char() {
     auto fun_phrase = R"( ["I \u2665 Unicode. Even broken \ud800 Unicode." ])"_padded;
     std::string_view expected_fun = "I \xe2\x99\xa5 Unicode. Even broken \xef\xbf\xbd Unicode.";
@@ -693,6 +706,7 @@ namespace misc_tests {
            skipbom() &&
            issue1981_success() &&
            issue1981_failure() &&
+           root_false_bad_last_character() &&
            replacement_char() &&
            wobbly_tests() &&
            issue_uffff() &&

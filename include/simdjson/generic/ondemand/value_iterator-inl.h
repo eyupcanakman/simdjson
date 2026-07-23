@@ -846,10 +846,11 @@ simdjson_warn_unused simdjson_inline simdjson_result<bool> value_iterator::get_r
   auto json = peek_root_scalar("bool");
   // We have a boolean if we have either "true" or "false" and the next character is either
   // a structural character or whitespace. We also check that the length is correct:
-  // "true" and "false" are 4 and 5 characters long, respectively.
+  // "true" and "false" are 4 and 5 characters long, respectively. Because str4ncmp
+  // compares only 4 bytes, we check the fifth character of "false" separately.
   bool value_true = (max_len >= 4 && !atomparsing::str4ncmp(json, "true") &&
   (max_len == 4 || jsoncharutils::is_structural_or_whitespace(json[4])));
-  bool value_false = (max_len >= 5 && !atomparsing::str4ncmp(json, "false") &&
+  bool value_false = (max_len >= 5 && !atomparsing::str4ncmp(json, "fals") && json[4] == 'e' &&
   (max_len == 5 || jsoncharutils::is_structural_or_whitespace(json[5])));
   if(value_true == false && value_false == false) { return incorrect_type_error("Not a boolean"); }
   if (check_trailing && !_json_iter->is_single_token()) { return TRAILING_CONTENT; }

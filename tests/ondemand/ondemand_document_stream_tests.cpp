@@ -952,6 +952,23 @@ namespace document_stream_tests {
         TEST_SUCCEED();
     }
 
+    bool root_false_bad_last_character() {
+        TEST_START();
+        auto json = R"(falsA
+true
+)"_padded;
+        ondemand::parser parser;
+        ondemand::document_stream doc;
+        ASSERT_SUCCESS(parser.iterate_many(json).get(doc));
+        auto i = doc.begin();
+        bool x;
+        ASSERT_ERROR((*i).get_bool().get(x), INCORRECT_TYPE);
+        ++i;
+        ASSERT_SUCCESS((*i).get_bool().get(x));
+        ASSERT_EQUAL(x,true);
+        TEST_SUCCEED();
+    }
+
     bool null_with_trailing() {
         TEST_START();
         auto json = R"( null badstuff )"_padded;
@@ -2370,6 +2387,7 @@ namespace document_stream_tests {
             uint32_with_trailing() &&
             int32_with_trailing() &&
             bool_with_trailing() &&
+            root_false_bad_last_character() &&
             null_with_trailing() &&
             truncated_utf8() &&
             issue1729() &&
